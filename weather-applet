@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import argparse, syslog
+
+from appletlib.app         import Application
+from weatherapplet.weather import WeatherIndicator
+
+def parseCommandLine():
+    ret = {}
+    parser = argparse.ArgumentParser(
+        description='Weather applet')
+    parser.add_argument( '-d', '--daemon',
+                         help='run as daemon', action="store_true")
+    parser.add_argument( '-v', '--verbosity', type=int,
+                         help='select verbosity')
+    args = parser.parse_args()
+    
+    # detach immediately if run as daemon
+    if args.daemon: Application.detach()
+    
+    ret['verbosity'] = args.verbosity
+    ret['daemon'] = args.daemon
+
+    return ret
+
+def main():
+    argdict = parseCommandLine()
+    app = Application("mechnich","weather-applet")
+    app.init(argdict)
+    i = [ WeatherIndicator() ]
+    syslog.syslog( syslog.LOG_INFO, "INFO   startup complete");
+    return app.exec_()
+
+if __name__ == "__main__":
+    main()
