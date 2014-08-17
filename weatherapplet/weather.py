@@ -28,8 +28,8 @@ class WeatherIndicator(Indicator):
                                                      Modes.Now).toInt()[0])
         self.location     = int(Application.settingsValue('location',
                                                      Location.Auto).toInt()[0])
-        self.locid        = str(Application.settingsValue('locid',
-                                                     '-1').toString())
+        self.locid        = int(Application.settingsValue('locid',
+                                                     '-1').toInt()[0])
         self.apikey       = str(Application.settingsValue('apikey', '').toString())
         self.cachedir     = os.path.join( os.environ['HOME'], '.cache',
                                           str(qApp.applicationName()))

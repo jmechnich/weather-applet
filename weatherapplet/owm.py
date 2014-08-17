@@ -53,7 +53,7 @@ class OWMParser:
         j = json.load(f)
         if int(j['cod']) != 200:
             print "Error:", j
-            return ret
+            return data
         
         if j.has_key('city'):
             data.update(self.parseLocation( j['city']))
