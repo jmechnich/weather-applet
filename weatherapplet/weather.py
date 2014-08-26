@@ -269,7 +269,17 @@ class WeatherIndicator(Indicator):
             self.s.setIcon( QIcon(pix))
             if self.splash: self.splash.updateSplash()
             return
-        bg = QPixmap( self.iconPath(self.data['icon']))
+        iconname = 'icon'
+        if not self.data.has_key(iconname) and self.data.has_key('icon_0'):
+            iconname = 'icon_0'
+        else:
+            syslog.syslog( syslog.LOG_DEBUG, "INFO  updateIcon no icon")
+            p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
+            p.end()
+            self.s.setIcon( QIcon(pix))
+            if self.splash: self.splash.updateSplash()
+            return
+        bg = QPixmap( self.iconPath(self.data[iconname]))
         sx = float(pix.width())/bg.width()
         sy = float(pix.height())/bg.height()
         p.save()

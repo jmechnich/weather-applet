@@ -46,6 +46,7 @@ class OWMParser:
 
     def getWeather(self, url, args):
         data = {}
+        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  %s" % url+urllib.urlencode(args))
         f = self.connect( url+urllib.urlencode(args))
         if not f:
             return data

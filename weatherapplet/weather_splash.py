@@ -201,8 +201,13 @@ class SplashWeather(Splash):
         data = self.i.data
         w=self.width-2*self.margin
         h=self.height-2*self.margin
-        
-        icon = QPixmap(self.i.iconPath(data['icon']))
+
+        iconname = 'icon'
+        if not data.has_key(iconname) and data.has_key('icon_0'):
+            iconname = 'icon_0'
+        else:
+            syslog.syslog( syslog.LOG_DEBUG, "INFO  drawHeader no icon")
+        icon = QPixmap(self.i.iconPath(data[iconname]))
         p.drawPixmap(0, 0, icon.width(), icon.height(), icon)
 
         name = data['name']
@@ -257,7 +262,12 @@ class SplashWeather(Splash):
         w=self.width-2*self.margin
         h=self.height-2*self.margin
         p.setFont( self.font)
-        self.drawItem(p, w/2, u'Status:', u'%s' % data['detailed'])
+        detailed = 'detailed'
+        if not data.has_key('detailed') and data.has_key('detailed_0'):
+            detailed = 'detailed_0'
+        else:
+            syslog.syslog( syslog.LOG_DEBUG, "INFO  drawWeather no detailed info")
+        self.drawItem(p, w/2, u'Status:', u'%s' % data[detailed])
         if data.has_key('temp'):
             self.drawItem(p, w/2, u'Temperature:',
                           u'%.1f \xb0C' % data['temp'])
