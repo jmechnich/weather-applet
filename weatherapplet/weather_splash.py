@@ -203,10 +203,12 @@ class SplashWeather(Splash):
         h=self.height-2*self.margin
 
         iconname = 'icon'
-        if not data.has_key(iconname) and data.has_key('icon_0'):
+        if data.has_key(iconname):
+            pass
+        elif data.has_key('icon_0'):
             iconname = 'icon_0'
         else:
-            syslog.syslog( syslog.LOG_DEBUG, "INFO  drawHeader no icon")
+            syslog.syslog( syslog.LOG_WARNING, "WARN  drawHeader no icon")
         icon = QPixmap(self.i.iconPath(data[iconname]))
         p.drawPixmap(0, 0, icon.width(), icon.height(), icon)
 

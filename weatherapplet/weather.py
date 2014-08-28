@@ -263,17 +263,19 @@ class WeatherIndicator(Indicator):
         p.setFont( f)
         p.setPen(self.s.fgColor)
         if not len(self.data):
-            syslog.syslog( syslog.LOG_DEBUG, "INFO  updateIcon no data")
+            syslog.syslog( syslog.LOG_ERROR, "ERR   updateIcon no data")
             p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
             self.s.setIcon( QIcon(pix))
             if self.splash: self.splash.updateSplash()
             return
         iconname = 'icon'
-        if not self.data.has_key(iconname) and self.data.has_key('icon_0'):
+        if self.data.has_key(iconname):
+            pass
+        elif self.data.has_key('icon_0'):
             iconname = 'icon_0'
         else:
-            syslog.syslog( syslog.LOG_DEBUG, "INFO  updateIcon no icon")
+            syslog.syslog( syslog.LOG_WARNING, "WARN  updateIcon no icon")
             p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
             self.s.setIcon( QIcon(pix))
