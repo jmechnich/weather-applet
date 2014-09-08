@@ -6,7 +6,7 @@ from PyQt4.Qt import *
 
 class Preferences(QDialog):
     def __init__(self, indicator):
-        QDialog.__init__(self)
+        super(Preferences,self).__init__()
         self.i = indicator
         self.location = {}
         self.mapping = dict(zip(Location.reverse_mapping.keys(),[

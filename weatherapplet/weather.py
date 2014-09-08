@@ -12,8 +12,12 @@ from datetime import datetime, timedelta
 from PyQt4.Qt import *
 
 class WeatherIndicator(Indicator):
+    # update every hour
+    update_interval = 60*60*1000
+    reasonDict = dict((v,k) for k,v in  QSystemTrayIcon.__dict__.iteritems())
+    
     def __init__(self):
-        Indicator.__init__(self, 'weather', 60*60*1000)
+        super(WeatherIndicator,self).__init__('weather', self.update_interval)
         self.func = self.updateAll
         self.initVars()
         self.initOwm()
@@ -56,6 +60,7 @@ class WeatherIndicator(Indicator):
             self.mode_actions[i] = a
         sm.mapped.connect( self.setMode)
         m.addSeparator()
+        m.addAction( "&Update", self.updateAll)
         m.addAction( QIcon.fromTheme("options"), "&Options",
                      self.showPreferences)
         m.addAction( QIcon.fromTheme("application-exit"), "&Quit", qApp.quit)
@@ -63,6 +68,7 @@ class WeatherIndicator(Indicator):
         
     def initStats(self):
         self.s.triggerUpdate.connect( self.func)
+        self.s.triggerWheel.connect( self.cycleMode)
         self.s.activated.connect( self.systrayClicked)
 
     def initWidgets(self):
@@ -127,18 +133,30 @@ class WeatherIndicator(Indicator):
     def showPreferences(self):
         self.prefs.show()
         
-    def setMode( self, m):
+    def setMode(self, m):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather setMode %d" % m)
         self.mode = m
         Application.setSettingsValue( 'mode', m)
         if self.splash:
+            syslog.syslog( syslog.LOG_DEBUG,
+                           "DEBUG  weather setMode updateSplash")
             self.updateSplashGeometry()
             self.splash.updateSplash()
             self.splash.show()
+    
+    def cycleMode(self, delta):
+        if delta < 0 and self.mode < Modes.N-1:
+            self.mode += 1
+            self.updateActions()
+            if self.splash: self.splash.updateSplash()
+        elif delta > 0 and self.mode > 0:
+            self.mode -= 1
+            self.updateActions()
+            if self.splash: self.splash.updateSplash()
         
     def systrayClicked(self,reason):
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  weather systrayClicked %d" % reason)
+        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather systrayClicked '%s'" %\
+                       self.reasonDict[reason])
         if reason == QSystemTrayIcon.Trigger or \
                 reason == QSystemTrayIcon.DoubleClick:
             if not self.splash: return

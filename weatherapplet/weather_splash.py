@@ -8,7 +8,7 @@ from PyQt4.Qt import *
 
 class SplashWeather(Splash):
     def __init__(self,indicator):
-        Splash.__init__(self)
+        super(SplashWeather,self).__init__()
         self.i = indicator
         self.initVars()
         self.updateSplash()
@@ -35,14 +35,7 @@ class SplashWeather(Splash):
 
     def wheelEvent(self,ev):
         ev.accept()
-        if ev.delta() < 0 and self.i.mode < Modes.N-1:
-            self.i.mode += 1
-            self.i.updateActions()
-            self.updateSplash()
-        elif ev.delta() > 0 and self.i.mode > 0:
-            self.i.mode -= 1
-            self.i.updateActions()
-            self.updateSplash()
+        self.i.cycleMode(ev.delta())
         
     def paintEvent(self,ev):
         ev.accept()
@@ -268,7 +261,8 @@ class SplashWeather(Splash):
         if not data.has_key('detailed') and data.has_key('detailed_0'):
             detailed = 'detailed_0'
         else:
-            syslog.syslog( syslog.LOG_DEBUG, "INFO  drawWeather no detailed info")
+            syslog.syslog( syslog.LOG_DEBUG,
+                           "INFO   drawWeather no detailed info")
         self.drawItem(p, w/2, u'Status:', u'%s' % data[detailed])
         if data.has_key('temp'):
             self.drawItem(p, w/2, u'Temperature:',
@@ -286,7 +280,8 @@ class SplashWeather(Splash):
         self.drawItem(p, w/2, u'Humidity:', u'%.1f %%' % data['humidity'])
         self.drawItem(p, w/2, u'Pressure:', u'%d mbar' % data['pressure'])
         if data.has_key('rain_3h'):
-            self.drawItem(p, w/2, u'Rain (last 3h):', u'%d mm' % data['rain_3h'])
+            self.drawItem(p, w/2, u'Rain (last 3h):',
+                          u'%d mm' % data['rain_3h'])
         elif data.has_key('rain_all'):
             self.drawItem(p, w/2, u'Rain:', u'%d mm' % data['rain_all'])
         else:
