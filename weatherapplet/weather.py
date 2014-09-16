@@ -281,7 +281,7 @@ class WeatherIndicator(Indicator):
         p.setFont( f)
         p.setPen(self.s.fgColor)
         if not len(self.data):
-            syslog.syslog( syslog.LOG_ERROR, "ERR   updateIcon no data")
+            syslog.syslog( syslog.LOG_ERR, "ERR   updateIcon no data")
             p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
             self.s.setIcon( QIcon(pix))
