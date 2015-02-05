@@ -1,4 +1,4 @@
-import json, syslog, urllib, urllib2
+import json, syslog, urllib, urllib2, time
 
 class OWMParser:
     def __init__(self,apikey=None):
@@ -199,4 +199,3 @@ class OWMParser:
             syslog.syslog( syslog.LOG_ERR,
                            "ERROR  failed to retrieve data from '%s'" % url)
         return data
-

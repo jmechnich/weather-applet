@@ -24,6 +24,7 @@ class WeatherIndicator(Indicator):
         self.initContextMenu()
         self.initStats()
         self.initWidgets()
+        qApp.sigusr1.connect(self.restart)
 
     def initVars(self):
         self.data         = {}
@@ -39,6 +40,7 @@ class WeatherIndicator(Indicator):
                                           str(qApp.applicationName()))
         self.prefs        = None
         self.icon         = None
+        self.locvalid     = False
         
     def initOwm(self):
         self.owm = OWMParser(self.apikey if len(self.apikey) else None)
@@ -106,6 +108,7 @@ class WeatherIndicator(Indicator):
         if not len(data): return False
         if not data.has_key('id'): return False
         self.locid = data['id']
+        self.locvalid = True
         syslog.syslog( syslog.LOG_DEBUG,
                        "DEBUG  weather setLocationFromName: %d" % self.locid)
         return True
@@ -120,6 +123,7 @@ class WeatherIndicator(Indicator):
         if locid == -1: return False
         if self.locid == locid and len(self.data): return False
         self.locid = locid
+        self.locvalid = True
         syslog.syslog( syslog.LOG_DEBUG,
                        "DEBUG  weather setLocationFromCoord: %d" % self.locid)
         return True
@@ -127,7 +131,9 @@ class WeatherIndicator(Indicator):
     def updateLocation(self):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateLocation")
         self.updateAll()
-        if self.location != Location.Auto and (self.locid != -1):
+        if self.location != Location.Auto and \
+           self.locid    != -1 and \
+           self.locvalid == True:
             Application.setSettingsValue('locid', self.locid)
         
     def showPreferences(self):
@@ -166,16 +172,19 @@ class WeatherIndicator(Indicator):
                 self.updateSplashGeometry(hide=True)
                 self.splash.show()
         elif reason == QSystemTrayIcon.MiddleClick:
-            self.reset()
-            self.initContextMenu()
-            self.initStats()
-            self.updateIcon()
-            self.prefs.group_loc.button(self.location).setChecked(True)
+            self.restart()
         elif reason == QSystemTrayIcon.Context:
             pass
         elif reason == QSystemTrayIcon.Unknown:
             print "unknown"
 
+    def restart(self):
+        self.reset()
+        self.initContextMenu()
+        self.initStats()
+        self.updateIcon()
+        self.prefs.group_loc.button(self.location).setChecked(True)
+        
     def iconPath(self,icon):
         trgdir = os.path.join( self.cachedir, 'icons')
         trg = os.path.join( trgdir, '%s.png' % icon)
@@ -194,7 +203,8 @@ class WeatherIndicator(Indicator):
         self.mode_actions[self.mode].setChecked(True)
     
     def updateAll(self):
-        syslog.syslog( syslog.LOG_INFO, "INFO   updateAll")
+        syslog.syslog( syslog.LOG_INFO, "INFO   updateAll at %s" %
+                       datetime.now().isoformat())
         self.data.clear()
         self.updateWeather()
         self.updateForecast()
@@ -214,10 +224,12 @@ class WeatherIndicator(Indicator):
         if not len(data):
             syslog.syslog( syslog.LOG_WARNING,
                            "WARN  could not get weather for '%d'" % self.locid)
-            self.locid = -1
+            if not self.locvalid:
+                self.locid = -1
             return
         
         self.data.update(data)
+        self.locvalid = True
 
     def updateForecast(self):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateForecast")
@@ -231,7 +243,8 @@ class WeatherIndicator(Indicator):
         if not len(data):
             syslog.syslog( syslog.LOG_WARNING,
                            "WARN  could not get weather for '%d'" % self.locid)
-            self.locid = -1
+            if not self.locvalid:
+                self.locid = -1
             return
 
         today = datetime.today()
@@ -259,7 +272,8 @@ class WeatherIndicator(Indicator):
         if not len(data):
             syslog.syslog( syslog.LOG_WARNING,
                            "WARN  could not get weather for '%d'" % self.locid)
-            self.locid = -1
+            if not self.locvalid:
+                self.locid = -1
             return
 
         # try filling five days starting from start (defaults to tomorrow)
