@@ -40,7 +40,7 @@ class WeatherIndicator(Indicator):
                                           str(qApp.applicationName()))
         self.prefs        = None
         self.icon         = None
-        self.locvalid     = False
+        self.locvalid     = False if self.locid == -1 else True
         
     def initOwm(self):
         self.owm = OWMParser(self.apikey if len(self.apikey) else None)
@@ -242,7 +242,7 @@ class WeatherIndicator(Indicator):
         
         if not len(data):
             syslog.syslog( syslog.LOG_WARNING,
-                           "WARN  could not get weather for '%d'" % self.locid)
+                           "WARN  could not get forecast for '%d'" % self.locid)
             if not self.locvalid:
                 self.locid = -1
             return
@@ -271,7 +271,7 @@ class WeatherIndicator(Indicator):
 
         if not len(data):
             syslog.syslog( syslog.LOG_WARNING,
-                           "WARN  could not get weather for '%d'" % self.locid)
+                           "WARN  could not get daily forecast for '%d'" % self.locid)
             if not self.locvalid:
                 self.locid = -1
             return

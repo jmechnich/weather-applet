@@ -3,7 +3,7 @@ import json, syslog, urllib, urllib2, time
 class OWMParser:
     def __init__(self,apikey=None):
         self.args = { 'units': 'metric' }
-        if apikey: self.args['apikey'] = apikey
+        if apikey: self.args['APPID'] = apikey
         self.baseurl = 'http://api.openweathermap.org/data/2.5'
     
     def getForecastByName(self, name):
@@ -34,7 +34,14 @@ class OWMParser:
         args = { 'id': locid}
         args.update( self.args)
         url = '%s/%s?' % (self.baseurl,keyword)
-        return self.getWeather( url, args)
+        w = self.getWeather( url, args)
+        # try 'group' api call if 'weather' was unsuccessful
+        if not len(w) and keyword == 'weather':
+            syslog.syslog( syslog.LOG_WARNING,
+                           "WARN   Falling back to 'group' API call")
+            url = '%s/%s?' % (self.baseurl,'group')
+            w = self.getWeather( url, args)
+        return w
 
     def getWeatherByCoord(self, lon, lat, keyword='weather'):
         args = { 'lon': lon,
@@ -52,16 +59,20 @@ class OWMParser:
             return data
         
         j = json.load(f)
-        if int(j['cod']) != 200:
-            print "Error:", j
+        if (j.has_key('cod') and int(j['cod']) != 200) or \
+           (j.has_key('cnt') and int(j['cnt']) == 0):
+            syslog.syslog( syslog.LOG_ERR, "ERROR  %s" % repr(j))
             return data
         
         if j.has_key('city'):
             data.update(self.parseLocation( j['city']))
         if j.has_key('list'):
-            data['forecasts'] = []
-            for li in j['list']:
-                data['forecasts'] += [self.parseWeather(li)]
+            if url.find('forecast') != -1:
+                data['forecasts'] = []
+                for li in j['list']:
+                    data['forecasts'] += [self.parseWeather(li)]
+            elif j['cnt'] == 1:
+                j = j['list'][0]
         if not len(data):
             data.update( self.parseLocation(j))
             data.update( self.parseWeather(j))
