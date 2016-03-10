@@ -7,3 +7,9 @@ def enum(*sequential, **named):
 
 Modes    = enum( 'Now', 'Today', 'Tomorrow', 'Week')
 Location = enum( 'Auto', 'Name', 'Coord', "ID", "Preset")
+
+class OWMError(Exception):
+    def __init__(self,msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg

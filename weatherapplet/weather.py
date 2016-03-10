@@ -2,7 +2,7 @@ from appletlib.indicator      import Indicator
 from appletlib.app            import Application
 
 from owm            import OWMParser
-from utils          import Location, Modes
+from utils          import Location, Modes, OWMError
 from prefs          import Preferences
 from weather_splash import SplashWeather
 
@@ -206,9 +206,12 @@ class WeatherIndicator(Indicator):
         syslog.syslog( syslog.LOG_INFO, "INFO   updateAll at %s" %
                        datetime.now().isoformat())
         self.data.clear()
-        self.updateWeather()
-        self.updateForecast()
-        self.updateDailyForecast()
+        try:
+            self.updateWeather()
+            self.updateForecast()
+            self.updateDailyForecast()
+        except OWMError, e:
+            syslog.syslog( syslog.LOG_ERR, "ERR  weather %s" % e)
         self.updateIcon()
         if self.splash:
             self.splash.updateSplash()

@@ -1,4 +1,5 @@
 import json, syslog, urllib, urllib2, time
+from utils import OWMError
 
 class OWMParser:
     def __init__(self,apikey=None):
@@ -209,4 +210,5 @@ class OWMParser:
         else:
             syslog.syslog( syslog.LOG_ERR,
                            "ERROR  failed to retrieve data from '%s'" % url)
+            raise OWMError("Error connecting to '%s'" % url)
         return data
