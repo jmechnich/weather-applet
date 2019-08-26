@@ -1,6 +1,6 @@
 from appletlib.splash import Splash
 
-from utils import Location, Modes
+from weatherapplet.utils import Location, Modes
 
 import time, syslog
 
@@ -84,9 +84,9 @@ class SplashWeather(Splash):
         y += self.lineh + self.margin
         p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Rain/3h")
         p.translate(hdrw,0)
-        for i in xrange(0,5):
+        for i in range(5):
             hour = '%s%d' % (prefix,i)
-            if not self.i.data.has_key(hour): break
+            if not hour in self.i.data: break
             data = self.i.data[hour]
             icon = QPixmap(self.i.iconPath(data['icon']))
             y = 0
@@ -143,9 +143,9 @@ class SplashWeather(Splash):
         y += self.lineh + self.margin
         p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Night")
         p.translate(hdrw,0)
-        for i in xrange(0,5):
+        for i in range(5):
             day = 'daily%d' % i
-            if not self.i.data.has_key(day): break
+            if not day in self.i.data: break
             data = self.i.data[day]
             icon = QPixmap(self.i.iconPath(data['icon']))
             y = 0
@@ -196,9 +196,9 @@ class SplashWeather(Splash):
         h=self.height-2*self.margin
 
         iconname = 'icon'
-        if data.has_key(iconname):
+        if iconname in data:
             pass
-        elif data.has_key('icon_0'):
+        elif 'icon_0' in data:
             iconname = 'icon_0'
         else:
             syslog.syslog( syslog.LOG_WARNING, "WARN  drawHeader no icon")
@@ -259,13 +259,13 @@ class SplashWeather(Splash):
         h=self.height-2*self.margin
         p.setFont( self.font)
         detailed = 'detailed'
-        if not data.has_key('detailed') and data.has_key('detailed_0'):
+        if not 'detailed' in data and 'detailed_0' in data:
             detailed = 'detailed_0'
         else:
             syslog.syslog( syslog.LOG_DEBUG,
                            "INFO   drawWeather no detailed info")
         self.drawItem(p, w/2, u'Status:', u'%s' % data[detailed])
-        if data.has_key('temp'):
+        if 'temp' in data:
             self.drawItem(p, w/2, u'Temperature:',
                           u'%.1f \xb0C' % data['temp'])
         else:
@@ -275,15 +275,15 @@ class SplashWeather(Splash):
                       u'%.1f \xb0C - %.1f \xb0C' % 
                       (data['temp_min'], data['temp_max']))
         self.drawItem(p, w/2, u'Coverage:', u'%.1f %%' % data['clouds_all'])
-        if data.has_key('wind_speed'):
+        if 'wind_speed' in data:
             self.drawItem(p, w/2, u'Wind:', u'%.1f m/s, %d\xb0' %
                           (data['wind_speed'],data['wind_deg']))
         self.drawItem(p, w/2, u'Humidity:', u'%.1f %%' % data['humidity'])
         self.drawItem(p, w/2, u'Pressure:', u'%d mbar' % data['pressure'])
-        if data.has_key('rain_3h'):
+        if 'rain_3h' in data:
             self.drawItem(p, w/2, u'Rain (last 3h):',
                           u'%d mm' % data['rain_3h'])
-        elif data.has_key('rain_all'):
+        elif 'rain_all' in data:
             self.drawItem(p, w/2, u'Rain:', u'%d mm' % data['rain_all'])
         else:
             p.translate(0,self.lineh+self.margin)

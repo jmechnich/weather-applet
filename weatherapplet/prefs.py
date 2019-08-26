@@ -1,4 +1,4 @@
-from utils import Location, Modes
+from weatherapplet.utils import Location, Modes
 
 import syslog
 
@@ -78,9 +78,9 @@ class Preferences(QDialog):
         selected = self.group_loc.id(b)
         syslog.syslog( syslog.LOG_DEBUG,
                        "DEBUG  prefs selectLocation %d" % selected)
-        for k,v in self.location.iteritems():
+        for k,v in self.location.items():
             v.setEnabled(False)
-        if self.location.has_key(selected):
+        if selected in self.location:
             self.location[selected].setEnabled(True)
         self.i.setLocation(selected)
         self.mapping[selected]()
@@ -116,7 +116,7 @@ class Preferences(QDialog):
     
     def setLocationFromID(self):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  prefs setLocationFromID")
-        locid = self.location[Location.ID].text().toInt()[0]
+        locid = int(self.location[Location.ID].text())
         if locid == self.i.locid: return
         self.i.locid = locid
         self.i.updateLocation()

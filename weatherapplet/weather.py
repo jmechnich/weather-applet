@@ -1,12 +1,12 @@
 from appletlib.indicator      import Indicator
 from appletlib.app            import Application
 
-from owm            import OWMParser
-from utils          import Location, Modes, OWMError
-from prefs          import Preferences
-from weather_splash import SplashWeather
+from weatherapplet.owm            import OWMParser
+from weatherapplet.utils          import Location, Modes, OWMError
+from weatherapplet.prefs          import Preferences
+from weatherapplet.weather_splash import SplashWeather
 
-import json, os, syslog, time, urllib2
+import json, os, syslog, time, urllib.request
 from datetime import datetime, timedelta
 
 from PyQt4.Qt import *
@@ -14,7 +14,7 @@ from PyQt4.Qt import *
 class WeatherIndicator(Indicator):
     # update every hour
     update_interval = 60*60*1000
-    reasonDict = dict((v,k) for k,v in  QSystemTrayIcon.__dict__.iteritems())
+    reasonDict = dict((v,k) for k,v in  QSystemTrayIcon.__dict__.items())
     
     def __init__(self):
         super(WeatherIndicator,self).__init__('weather', self.update_interval)
@@ -30,12 +30,11 @@ class WeatherIndicator(Indicator):
         self.data         = {}
         self.mode_actions = {}
         self.mode         = int(Application.settingsValue('mode',
-                                                     Modes.Now).toInt()[0])
+                                                     Modes.Now))
         self.location     = int(Application.settingsValue('location',
-                                                     Location.Auto).toInt()[0])
-        self.locid        = int(Application.settingsValue('locid',
-                                                     '-1').toInt()[0])
-        self.apikey       = str(Application.settingsValue('apikey', '').toString())
+                                                     Location.Auto))
+        self.locid        = int(Application.settingsValue('locid', '-1'))
+        self.apikey       = str(Application.settingsValue('apikey', ''))
         self.cachedir     = os.path.join( os.environ['HOME'], '.cache',
                                           str(qApp.applicationName()))
         self.prefs        = None
@@ -88,7 +87,7 @@ class WeatherIndicator(Indicator):
         lat=0
         try:
             src = "http://freegeoip.net/json/"
-            f = urllib2.urlopen(src)
+            f = urllib.request.urlopen(src)
             j = json.load(f)
             lon = j.get( 'longitude')
             lat = j.get( 'latitude')
@@ -106,7 +105,7 @@ class WeatherIndicator(Indicator):
         if self.locationName().startswith( s): return False
         data = self.owm.getWeatherByName(s)
         if not len(data): return False
-        if not data.has_key('id'): return False
+        if not 'id' in data: return False
         self.locid = data['id']
         self.locvalid = True
         syslog.syslog( syslog.LOG_DEBUG,
@@ -116,7 +115,7 @@ class WeatherIndicator(Indicator):
     def setLocationFromCoord(self, lon, lat):
         syslog.syslog( syslog.LOG_DEBUG,
                        "DEBUG  weather setLocationFromCoord %f %f" % (lon,lat))
-        if self.data.has_key(lon) and self.data.has_key(lat):
+        if lon in self.data and lat in self.data:
             if self.data['lon'] == lon and self.data['lat'] == lat:
                 return False
         locid = self.owm.findClosestID(lon, lat)
@@ -176,7 +175,7 @@ class WeatherIndicator(Indicator):
         elif reason == QSystemTrayIcon.Context:
             pass
         elif reason == QSystemTrayIcon.Unknown:
-            print "unknown"
+            print("unknown")
 
     def restart(self):
         self.reset()
@@ -192,7 +191,7 @@ class WeatherIndicator(Indicator):
             os.makedirs( trgdir)
         if not os.path.exists( trg):
             src = "http://openweathermap.org/img/w/%s.png" % icon
-            f = urllib2.urlopen(src)
+            f = urllib.request.urlopen(src)
             output = open( trg, 'wb')
             output.write(f.read())
             output.close()
@@ -210,7 +209,7 @@ class WeatherIndicator(Indicator):
             self.updateWeather()
             self.updateForecast()
             self.updateDailyForecast()
-        except OWMError, e:
+        except OWMError as e:
             syslog.syslog( syslog.LOG_ERR, "ERR  weather %s" % e)
         self.updateIcon()
         if self.splash:
@@ -305,9 +304,9 @@ class WeatherIndicator(Indicator):
             if self.splash: self.splash.updateSplash()
             return
         iconname = 'icon'
-        if self.data.has_key(iconname):
+        if iconname in self.data:
             pass
-        elif self.data.has_key('icon_0'):
+        elif 'icon_0' in self.data:
             iconname = 'icon_0'
         else:
             syslog.syslog( syslog.LOG_WARNING, "WARN  updateIcon no icon")
@@ -334,14 +333,14 @@ class WeatherIndicator(Indicator):
 
     def locationName(self):
         ret = ''
-        if self.data.has_key('name'):
+        if 'name' in self.data:
             ret = self.data['name']
-            if self.data.has_key('country'):
+            if 'country' in self.data:
                 ret += ', ' + self.data['country']
         return ret
 
     def locationCoord(self):
         ret = ''
-        if self.data.has_key('lon') and self.data.has_key('lat'):
+        if 'lon' in self.data and 'lat' in self.data:
             ret = '%f,%f' % (self.data['lon'],self.data['lat'])
         return ret

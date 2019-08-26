@@ -1,5 +1,5 @@
-import json, syslog, urllib, urllib2, time
-from utils import OWMError
+import json, syslog, urllib.parse, urllib.request, time
+from weatherapplet.utils import OWMError
 
 class OWMParser:
     def __init__(self,apikey=None):
@@ -54,20 +54,20 @@ class OWMParser:
 
     def getWeather(self, url, args):
         data = {}
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  %s" % url+urllib.urlencode(args))
-        f = self.connect( url+urllib.urlencode(args))
+        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  %s" % url+urllib.parse.urlencode(args))
+        f = self.connect( url+urllib.parse.urlencode(args))
         if not f:
             return data
         
         j = json.load(f)
-        if (j.has_key('cod') and int(j['cod']) != 200) or \
-           (j.has_key('cnt') and int(j['cnt']) == 0):
+        if ('cod' in j and int(j['cod']) != 200) or \
+           ('cnt' in j and int(j['cnt']) == 0):
             syslog.syslog( syslog.LOG_ERR, "ERROR  %s" % repr(j))
             return data
         
-        if j.has_key('city'):
+        if 'city' in j:
             data.update(self.parseLocation( j['city']))
-        if j.has_key('list'):
+        if 'list' in j:
             if url.find('forecast') != -1:
                 data['forecasts'] = []
                 for li in j['list']:
@@ -88,21 +88,21 @@ class OWMParser:
         url = '%s/%s?' % (self.baseurl,'find')
 
         ret = -1
-        f = self.connect( url+urllib.urlencode(args))
+        f = self.connect( url+urllib.parse.urlencode(args))
         if not f:
             return ret
         
         j = json.load(f)
         if int(j['cod']) != 200:
-            print "Error:", j
+            print("Error:", j)
             return ret
         
-        if not j.has_key('list'):
+        if not 'list' in j:
             return ret
 
         mindist = 1000
         for li in j['list']:
-            if not (li.has_key('id') and li.has_key('coord')):
+            if not ('id' in j and 'coord' in j):
                 continue
             tmp_lon = li['coord']['lon']
             tmp_lat = li['coord']['lat']
@@ -116,9 +116,9 @@ class OWMParser:
     def getNameFromID( self, locid):
         ret = None
         data = getWeatherByID( locid)
-        if len(data) and data.has_key('name'): 
+        if len(data) and 'name' in data: 
             ret = date['name']
-            if data.has_key('country'):
+            if 'country' in data:
                 ret += ", " + data['country']
         return ret
 
@@ -134,7 +134,7 @@ class OWMParser:
                 for k2,v2 in v.items():
                     d[k2] = v2
             # else:
-            #     print 2*' ' +k, v
+            #     print(2*' ' +k, v)
         return d
 
     def parseWeather( self, w):
@@ -181,27 +181,27 @@ class OWMParser:
             elif k in ['speed', 'deg']:
                 d['wind_'+k] = v
             # else:
-            #     print 2*' ' + k, v
+            #     print(2*' ' + k, v)
         return d
     
     def printData(self, data):
         for k,v in data.items():
             if k == 'forecasts': continue
-            print k.ljust(20), v
-        print
+            print(k.ljust(20), v)
+        print()
         for li in data.get('forecasts', []):
             for k,v in li.items():
-                print k.ljust(20), v
-            print
+                print(k.ljust(20), v)
+            print()
 
     def connect(self, url):
         data = None
         retries = 3
-        for i in xrange(retries):
+        for i in range(retries):
             try:
-                data = urllib2.urlopen( url)
+                data = urllib.request.urlopen( url)
                 break
-            except Exception, e:
+            except Exception as e:
                 syslog.syslog( syslog.LOG_DEBUG,
                                "DEBUG  owm connect error: %s" % str(e))
                 syslog.syslog( syslog.LOG_WARNING,
