@@ -2,7 +2,7 @@ from weatherapplet.utils import Location, Modes
 
 import syslog
 
-from PyQt4.Qt import *
+from PyQt5.Qt import *
 
 class Preferences(QDialog):
     def __init__(self, indicator):

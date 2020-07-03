@@ -4,7 +4,7 @@ from weatherapplet.utils import Location, Modes
 
 import time, syslog
 
-from PyQt4.Qt import *
+from PyQt5.Qt import *
 
 class SplashWeather(Splash):
     def __init__(self,indicator):
@@ -35,7 +35,7 @@ class SplashWeather(Splash):
 
     def wheelEvent(self,ev):
         ev.accept()
-        self.i.cycleMode(ev.delta())
+        self.i.cycleMode(ev.angleDelta().y())
         
     def paintEvent(self,ev):
         ev.accept()

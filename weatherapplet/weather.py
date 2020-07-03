@@ -9,7 +9,7 @@ from weatherapplet.weather_splash import SplashWeather
 import json, os, syslog, time, urllib.request
 from datetime import datetime, timedelta
 
-from PyQt4.Qt import *
+from PyQt5.Qt import *
 
 class WeatherIndicator(Indicator):
     # update every hour
