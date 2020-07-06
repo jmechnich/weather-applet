@@ -61,10 +61,11 @@ class WeatherIndicator(Indicator):
             self.mode_actions[i] = a
         sm.mapped.connect( self.setMode)
         m.addSeparator()
-        m.addAction( "&Update", self.updateAll)
-        m.addAction( QIcon.fromTheme("options"), "&Options",
-                     self.showPreferences)
-        m.addAction( QIcon.fromTheme("application-exit"), "&Quit", qApp.quit)
+        m.addAction(QIcon.fromTheme("view-refresh"), "&Update",
+                    self.updateAll)
+        m.addAction(QIcon.fromTheme("preferences-other"), "&Options",
+                    self.showPreferences)
+        m.addAction(QIcon.fromTheme("application-exit"), "&Quit", qApp.quit)
         self.systray.setContextMenu(m)
         
     def initStats(self):
