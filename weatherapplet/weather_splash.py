@@ -42,8 +42,8 @@ class SplashWeather(Splash):
         self.fitContents()
         p = QPainter(self)
         p.setFont( self.font)
-        p.fillRect( self.rect(), self.i.s.bgColor)
-        p.setPen(self.i.s.fgColor)
+        p.fillRect( self.rect(), self.i.systray.bgColor)
+        p.setPen(self.i.systray.fgColor)
         p.translate(self.margin,self.margin)
         data = self.i.data
         if not data or not len(data):

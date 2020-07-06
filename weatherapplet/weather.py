@@ -65,12 +65,12 @@ class WeatherIndicator(Indicator):
         m.addAction( QIcon.fromTheme("options"), "&Options",
                      self.showPreferences)
         m.addAction( QIcon.fromTheme("application-exit"), "&Quit", qApp.quit)
-        self.s.setContextMenu(m)
+        self.systray.setContextMenu(m)
         
     def initStats(self):
-        self.s.triggerUpdate.connect( self.func)
-        self.s.triggerWheel.connect( self.cycleMode)
-        self.s.activated.connect( self.systrayClicked)
+        self.systray.triggerUpdate.connect( self.func)
+        self.systray.triggerWheel.connect( self.cycleMode)
+        self.systray.activated.connect( self.systrayClicked)
 
     def initWidgets(self):
         self.splash = SplashWeather(self)
@@ -291,16 +291,16 @@ class WeatherIndicator(Indicator):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateIcon")
 
         pix = QPixmap(22, 22)
-        pix.fill( self.s.bgColor)
+        pix.fill( self.systray.bgColor)
         p = QPainter(pix)
         f = QFont("Dejavu Sans", 6)
         p.setFont( f)
-        p.setPen(self.s.fgColor)
+        p.setPen(self.systray.fgColor)
         if not len(self.data):
             syslog.syslog( syslog.LOG_ERR, "ERR   updateIcon no data")
             p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
-            self.s.setIcon( QIcon(pix))
+            self.systray.setIcon( QIcon(pix))
             if self.splash: self.splash.updateSplash()
             return
         iconname = 'icon'
@@ -312,7 +312,7 @@ class WeatherIndicator(Indicator):
             syslog.syslog( syslog.LOG_WARNING, "WARN  updateIcon no icon")
             p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
-            self.s.setIcon( QIcon(pix))
+            self.systray.setIcon( QIcon(pix))
             if self.splash: self.splash.updateSplash()
             return
         bg = QPixmap( self.iconPath(self.data[iconname]))
@@ -328,7 +328,7 @@ class WeatherIndicator(Indicator):
                     u"%d\xb0C" % round(self.data['temp']))
         p.end()
         self.icon = QIcon(pix)
-        self.s.setIcon(self.icon)
+        self.systray.setIcon(self.icon)
         if self.prefs: self.prefs.setWindowIcon(self.icon)
 
     def locationName(self):
