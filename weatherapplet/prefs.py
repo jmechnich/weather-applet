@@ -49,7 +49,7 @@ class Preferences(QDialog):
         tmp.returnPressed.connect( self.setLocationFromCoord)
         v.addWidget( tmp, 2, 1)
         
-        tmp = QRadioButton("From ID:")
+        tmp = QRadioButton("From OWM ID:")
         self.group_loc.addButton(tmp, Location.ID)
         v.addWidget( tmp, 3, 0)
         tmp = QLineEdit(str(self.i.locid))
