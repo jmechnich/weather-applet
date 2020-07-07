@@ -87,12 +87,16 @@ class WeatherIndicator(Indicator):
         lon=0
         lat=0
         try:
-            src = "http://freegeoip.net/json/"
+            src = "https://freegeoip.app/json/"
             f = urllib.request.urlopen(src)
             j = json.load(f)
             lon = j.get( 'longitude')
             lat = j.get( 'latitude')
-        except:
+        except Exception as e:
+            syslog.syslog(
+                syslog.LOG_ERR,
+                "ERROR  weather setLocationFromIP failed: %s" % str(e))
+
             return False
         syslog.syslog( syslog.LOG_DEBUG,
                        "DEBUG  weather setLocationFromIP %f %f" %
