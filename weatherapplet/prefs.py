@@ -58,13 +58,14 @@ class Preferences(QDialog):
         tmp.returnPressed.connect( self.setLocationFromID)
         v.addWidget( tmp, 3, 1)
 
-        tmp = QRadioButton("From Preset:")
-        self.group_loc.addButton(tmp, Location.Preset)
-        v.addWidget( tmp, 4, 0)
-        tmp = QPushButton()
-        self.location[Location.Preset] = tmp
-        tmp.clicked.connect( self.setLocationFromPreset)
-        v.addWidget( tmp, 4, 1)
+        # disabled for now
+        #tmp = QRadioButton("From Preset:")
+        #self.group_loc.addButton(tmp, Location.Preset)
+        #v.addWidget( tmp, 4, 0)
+        #tmp = QPushButton()
+        #self.location[Location.Preset] = tmp
+        #tmp.clicked.connect( self.setLocationFromPreset)
+        #v.addWidget( tmp, 4, 1)
 
         g.setLayout(v)
         self.layout.addWidget(g)
