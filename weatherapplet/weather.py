@@ -75,8 +75,18 @@ class WeatherIndicator(Indicator):
 
     def initWidgets(self):
         self.splash = SplashWeather(self)
-        self.updateAll()
         self.prefs  = Preferences(self)
+        self.updateAll()
+
+    def setAPIKey(self, apikey):
+        self.apikey = apikey
+        Application.setSettingsValue('apikey', self.apikey)
+        self.owm.setAPIKey(self.apikey)
+        if not self.locvalid:
+            if not self.setLocationFromIP():
+                return
+            self.updateLocation()
+            self.prefs.initContents()
 
     def setLocation(self,l):
         self.location = l
@@ -122,9 +132,15 @@ class WeatherIndicator(Indicator):
                        "DEBUG  weather setLocationFromCoord %f %f" % (lon,lat))
         if lon in self.data and lat in self.data:
             if self.data['lon'] == lon and self.data['lat'] == lat:
+                syslog.syslog(
+                    syslog.LOG_DEBUG,
+                    "DEBUG   data already up to date")
                 return False
         locid = self.owm.findClosestID(lon, lat)
-        if locid == -1: return False
+        if locid == -1:
+            syslog.syslog(syslog.LOG_DEBUG,
+                          "DEBUG   error finding closest OWM ID")
+            return False
         if self.locid == locid and len(self.data): return False
         self.locid = locid
         self.locvalid = True
@@ -302,7 +318,7 @@ class WeatherIndicator(Indicator):
         p.setFont( f)
         p.setPen(self.systray.fgColor)
         if not len(self.data):
-            syslog.syslog( syslog.LOG_ERR, "ERR   updateIcon no data")
+            syslog.syslog( syslog.LOG_ERR, "ERR     updateIcon no data")
             p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
             self.systray.setIcon( QIcon(pix))

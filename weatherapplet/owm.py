@@ -1,11 +1,19 @@
-import json, syslog, urllib.parse, urllib.request, time
-from weatherapplet.utils import OWMError
+import json
+import syslog
+import time
+import urllib.parse
+import urllib.request
+
+from .utils import OWMError
 
 class OWMParser:
     def __init__(self,apikey=None):
         self.args = { 'units': 'metric' }
         if apikey: self.args['APPID'] = apikey
         self.baseurl = 'http://api.openweathermap.org/data/2.5'
+
+    def setAPIKey(self, apikey):
+        self.args['APPID'] = apikey
     
     def getForecastByName(self, name):
         return self.getWeatherByName( name, 'forecast')
@@ -57,6 +65,7 @@ class OWMParser:
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  %s" % url+urllib.parse.urlencode(args))
         f = self.connect( url+urllib.parse.urlencode(args))
         if not f:
+            syslog.syslog(syslog.LOG_DEBUG, "DEBUG  no data from connect()")
             return data
         
         j = json.load(f)
@@ -88,25 +97,30 @@ class OWMParser:
         url = '%s/%s?' % (self.baseurl,'find')
 
         ret = -1
-        f = self.connect( url+urllib.parse.urlencode(args))
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  %s" % url+urllib.parse.urlencode(args))
+        f = self.connect(url+urllib.parse.urlencode(args))
         if not f:
+            syslog.syslog(syslog.LOG_DEBUG, "DEBUG  no data from connect()")
             return ret
         
         j = json.load(f)
         if int(j['cod']) != 200:
-            print("Error:", j)
+            syslog.syslog(syslog.LOG_ERR, "ERROR  got error code %s from OWM" % j[cod])
             return ret
         
         if not 'list' in j:
+            syslog.syslog(syslog.LOG_ERR, "ERROR  error retrieving results from OWM")
             return ret
 
         mindist = 1000
         for li in j['list']:
-            if not ('id' in j and 'coord' in j):
+            if not ('id' in li and 'coord' in li):
                 continue
             tmp_lon = li['coord']['lon']
             tmp_lat = li['coord']['lat']
             dist = pow(lon-tmp_lon,2) + pow(lat-tmp_lat,2)
+            syslog.syslog(
+                syslog.LOG_DEBUG, "DEBUG  %s, distance: %f" % (li['name'],dist))
             if dist < mindist:
                 mindist = dist
                 ret = li['id']
@@ -210,5 +224,5 @@ class OWMParser:
         else:
             syslog.syslog( syslog.LOG_ERR,
                            "ERROR  failed to retrieve data from '%s'" % url)
-            raise OWMError("Error connecting to '%s'" % url)
+            #raise OWMError("Error connecting to '%s'" % url)
         return data

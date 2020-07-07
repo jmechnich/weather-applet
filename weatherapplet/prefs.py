@@ -23,6 +23,18 @@ class Preferences(QDialog):
             self.setWindowIcon( self.i.icon)
         
     def init(self):
+        g = QGroupBox("General")
+        v = QGridLayout()
+
+        v.addWidget(QLabel("OWM API key"), 0, 0)
+        self.apikey = QLineEdit(self.i.apikey)
+        self.apikey.returnPressed.connect(
+            lambda: self.i.setAPIKey(self.apikey.text()))
+        v.addWidget(self.apikey, 0, 1)
+
+        g.setLayout(v)
+        self.layout.addWidget(g)
+
         g = QGroupBox("Location")
         v = QGridLayout()
         self.group_loc = QButtonGroup()
@@ -70,10 +82,20 @@ class Preferences(QDialog):
         g.setLayout(v)
         self.layout.addWidget(g)
         
-        self.group_loc.buttonClicked.connect( self.selectLocation)
+        self.group_loc.buttonClicked.connect(self.selectLocation)
         sb = self.group_loc.button(self.i.location)
         sb.setChecked(True)
         self.selectLocation(sb)
+
+    def initContents(self):
+        self.apikey.setText(self.i.apikey)
+        self.location[Location.Name].setText(self.i.locationName())
+        self.location[Location.Coord].setText(self.i.locationCoord())
+        self.location[Location.ID].setText(str(self.i.locid))
+        self.group_loc.button(self.i.location).setChecked(True)
+
+    def showEvent(self, ev):
+        self.initContents()
         
     def selectLocation(self,b):
         selected = self.group_loc.id(b)
