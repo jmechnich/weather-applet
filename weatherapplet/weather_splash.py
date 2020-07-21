@@ -15,8 +15,8 @@ class SplashWeather(Splash):
     
     def initVars(self):
         self.margin = 2
-        self.width  = 200
-        self.height = 250
+        self.w      = 200
+        self.h      = 250
         self.lineh  = 15
         
     def updateSplash(self):
@@ -25,13 +25,13 @@ class SplashWeather(Splash):
     
     def fitContents(self):
         if not self.i.data or not len(self.i.data):
-            self.width  = 150
-            self.height = self.lineh
+            self.w = 150
+            self.h = self.lineh
         else:
             items = 12
-            self.width  = 300
-            self.height = 50+(self.lineh+self.margin)*items
-        self.resize( self.width, self.height)
+            self.w = 300
+            self.h = 50+(self.lineh+self.margin)*items
+        self.resize(self.w, self.h)
 
     def wheelEvent(self,ev):
         ev.accept()
@@ -47,7 +47,7 @@ class SplashWeather(Splash):
         p.translate(self.margin,self.margin)
         data = self.i.data
         if not data or not len(data):
-            p.drawText( 0, 0, self.width, self.height,
+            p.drawText( 0, 0, self.w, self.h,
                         Qt.AlignCenter, "No data available")
             p.end()
             return
@@ -192,8 +192,8 @@ class SplashWeather(Splash):
     def drawHeader(self, p):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather_splash drawHeader")
         data = self.i.data
-        w=self.width-2*self.margin
-        h=self.height-2*self.margin
+        w=self.w-2*self.margin
+        h=self.h-2*self.margin
 
         iconname = 'icon'
         if iconname in data:
@@ -255,8 +255,8 @@ class SplashWeather(Splash):
     def drawWeather(self, p):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather_splash drawWeather")
         data = self.i.data
-        w=self.width-2*self.margin
-        h=self.height-2*self.margin
+        w=self.w-2*self.margin
+        h=self.h-2*self.margin
         p.setFont( self.font)
         detailed = 'detailed'
         if not 'detailed' in data and 'detailed_0' in data:
