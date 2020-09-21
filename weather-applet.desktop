@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=weather-applet
+Comment=Show current weather and forecast in the systray
+Exec=weather-applet
+Icon=weather-applet
+Type=Application
+Categories=Qt;
+Keywords=Utility

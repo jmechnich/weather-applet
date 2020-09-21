@@ -17,6 +17,9 @@ setuptools.setup(
     packages=['weatherapplet'],
     install_requires=["appletlib"],
     scripts=['weather-applet'],
+    data_files = [
+        ('share/applications', ['weather-applet.desktop']),
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
