@@ -9,6 +9,7 @@ setup(
     name='weather-applet',
     author='Joerg Mechnich',
     author_email='joerg.mechnich@gmail.com',
+    license='GNU GPLv3',
     description='Weather system tray applet using OpenWeatherMap',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -19,7 +20,7 @@ setup(
     install_requires=["appletlib"],
     scripts=['weather-applet'],
     data_files = [
-        ('share/applications', ['weather-applet.desktop']),
+        ('share/applications', ['misc/weather-applet.desktop']),
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
