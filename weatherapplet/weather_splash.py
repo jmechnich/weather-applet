@@ -41,14 +41,14 @@ class SplashWeather(Splash):
         ev.accept()
         self.fitContents()
         p = QPainter(self)
-        p.setFont( self.font)
-        p.fillRect( self.rect(), self.i.systray.bgColor)
+        p.setFont(self.font)
+        p.fillRect(self.rect(), self.i.systray.bgColor)
         p.setPen(self.i.systray.fgColor)
         p.translate(self.margin,self.margin)
         data = self.i.data
         if not data or not len(data):
-            p.drawText( 0, 0, self.w, self.h,
-                        Qt.AlignCenter, "No data available")
+            p.drawText(0, 0, self.w, self.h,
+                       Qt.AlignCenter, "No data available")
             p.end()
             return
         self.drawHeader(p)
@@ -63,26 +63,33 @@ class SplashWeather(Splash):
             
 
     def drawDay(self, p, prefix='today'):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather_splash drawDay")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather_splash drawDay")
         p.save()
         iconoff = 50
         hdrw = 45
         y = iconoff+self.margin
-        p.setFont( self.font)
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Time")
+        p.setFont(self.font)
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Time")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Status")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Status")
         y += self.lineh + self.margin
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Temp")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Temp")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Min")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Min")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Max")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Max")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Wind")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Wind")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Rain/3h")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Rain/3h")
         p.translate(hdrw,0)
         for i in range(5):
             hour = '%s%d' % (prefix,i)
@@ -90,58 +97,64 @@ class SplashWeather(Splash):
             data = self.i.data[hour]
             icon = QPixmap(self.i.iconPath(data['icon']))
             y = 0
-            p.drawPixmap(0, y, icon.width(), icon.height(), icon)
+            p.drawPixmap(0, round(y), icon.width(), icon.height(), icon)
             y += icon.height() + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignCenter, "%s" %
-                        time.strftime("%H:%M", time.localtime(data['time'])))
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignCenter,
+                       time.strftime("%H:%M", time.localtime(data['time'])))
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignCenter, "%s" % data['status'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignCenter, str(data['status']))
             y += self.lineh + self.margin
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp'])
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp_min'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp_min'])
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp_max'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp_max'])
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f m/s" % data.get('wind_speed', 0))
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f m/s" % data.get('wind_speed', 0))
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%d mm" % data.get('rain_3h', 0))
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%d mm" % data.get('rain_3h', 0))
             p.translate(icon.width(),0)
         p.restore()
             
     def drawWeek(self,p):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather_splash drawWeek")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather_splash drawWeek")
         p.save()
         iconoff = 50
         hdrw = 45
         y = iconoff+self.margin
-        p.setFont( self.font)
+        p.setFont(self.font)
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Date")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Date")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Status")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Status")
         y += self.lineh + self.margin
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Morning")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Morning")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Day")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Day")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Eve")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Eve")
         y += self.lineh + self.margin
-        p.drawText( 0, y, hdrw, self.lineh, Qt.AlignCenter, "Night")
+        p.drawText(0, round(y), hdrw, round(self.lineh),
+                   Qt.AlignCenter, "Night")
         p.translate(hdrw,0)
         for i in range(5):
             day = 'daily%d' % i
@@ -149,48 +162,47 @@ class SplashWeather(Splash):
             data = self.i.data[day]
             icon = QPixmap(self.i.iconPath(data['icon']))
             y = 0
-            p.drawPixmap(0, y, icon.width(), icon.height(), icon)
+            p.drawPixmap(0, round(y), icon.width(), icon.height(), icon)
             y += icon.height()
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignCenter, "%s" %
-                        time.strftime("%a", time.localtime(data['time'])))
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignCenter, "%s" %
+                       time.strftime("%a", time.localtime(data['time'])))
             y += self.lineh + self.margin*2
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignCenter, "%s" %
-                        time.strftime("%h %d", time.localtime(data['time'])))
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignCenter, "%s" %
+                       time.strftime("%h %d", time.localtime(data['time'])))
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignCenter, "%s" % data['status'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignCenter, "%s" % data['status'])
             y += self.lineh + self.margin
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp_morn'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp_morn'])
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp_day'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp_day'])
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp_eve'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp_eve'])
             y += self.lineh + self.margin
-            p.drawText( 0, y, icon.width(), self.lineh,
-                        Qt.AlignVCenter | Qt.AlignRight,
-                        "%.1f \xb0C" % data['temp_night'])
+            p.drawText(0, round(y), icon.width(), round(self.lineh),
+                       Qt.AlignVCenter | Qt.AlignRight,
+                       "%.1f \xb0C" % data['temp_night'])
             p.translate(icon.width(),0)
         p.restore()
     
     def drawItem(self, p, center, title, value):
-        p.drawText( 0, 0, center, self.lineh, Qt.AlignLeft | Qt.AlignVCenter,
-                    title)
-        p.drawText( center, 0, center, self.lineh,
-                    Qt.AlignLeft | Qt.AlignVCenter,
-                    value)
-        p.translate(0,self.lineh+self.margin)
+        p.drawText(0, 0, round(center), round(self.lineh),
+                   Qt.AlignLeft | Qt.AlignVCenter, title)
+        p.drawText(round(center), 0, round(center), round(self.lineh),
+                   Qt.AlignLeft | Qt.AlignVCenter, value)
+        p.translate(0,round(self.lineh+self.margin))
     
     def drawHeader(self, p):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather_splash drawHeader")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather_splash drawHeader")
         data = self.i.data
         w=self.w-2*self.margin
         h=self.h-2*self.margin
@@ -201,8 +213,8 @@ class SplashWeather(Splash):
         elif 'icon_0' in data:
             iconname = 'icon_0'
         else:
-            syslog.syslog( syslog.LOG_WARNING, "WARN  drawHeader no icon")
-            syslog.syslog( syslog.LOG_DEBUG, repr(data.keys()))
+            syslog.syslog(syslog.LOG_WARNING, "WARN  drawHeader no icon")
+            syslog.syslog(syslog.LOG_DEBUG, repr(data.keys()))
         icon = QPixmap(self.i.iconPath(data[iconname]))
         p.drawPixmap(0, 0, icon.width(), icon.height(), icon)
 
@@ -218,52 +230,50 @@ class SplashWeather(Splash):
                 break
             fs -= 1
         p.setFont(f)
-        p.drawText( icon.width()+self.margin, 0,
-                    w-icon.width(), icon.height()/2.,
-                    Qt.AlignLeft | Qt.AlignVCenter,
-                    name)
+        p.drawText(icon.width()+self.margin, 0,
+                   w-icon.width(), round(icon.height()/2.),
+                   Qt.AlignLeft | Qt.AlignVCenter,
+                   name)
 
         f.setPointSize(8)
         p.setFont(f)
-        p.drawText( icon.width()+self.margin, icon.height()/2.,
-                    w*2./3-icon.width(), icon.height()/4.,
-                    Qt.AlignLeft | Qt.AlignVCenter,
-                    "ID: %d" % data['id'])
+        p.drawText(icon.width()+self.margin, round(icon.height()/2.),
+                   round(w*2./3-icon.width()), round(icon.height()/4.),
+                   Qt.AlignLeft | Qt.AlignVCenter,
+                   "ID: %d" % data['id'])
 
         coord = u"Lon: %.2f\xb0 Lat: %.2f\xb0" % (data['lon'], data['lat'])
         fs = 8
         while True:
-            f.setPointSize( fs)
+            f.setPointSize(fs)
             fm = QFontMetrics(f)
             if fm.width(coord) < w*2./3-icon.width():
                 break
             fs -= 1
         p.setFont(f)
-        p.drawText( icon.width()+self.margin, icon.height()*3/4,
-                    w*2./3-icon.width(), icon.height()/4.,
-                    Qt.AlignLeft | Qt.AlignVCenter,
-                    coord)
+        p.drawText(icon.width()+self.margin, round(icon.height()*3/4),
+                   round(w*2./3-icon.width()), round(icon.height()/4.),
+                   Qt.AlignLeft | Qt.AlignVCenter, coord)
         
         f.setPointSize(12)
         p.setFont(f)
-        p.drawText( w*2./3, icon.height()/2.,
-                    w/3., icon.height()/2.,
-                    Qt.AlignCenter,
-                    Modes.reverse_mapping[self.i.mode])
+        p.drawText(round(w*2./3), round(icon.height()/2.),
+                   round(w/3.), round(icon.height()/2.),
+                   Qt.AlignCenter, Modes.reverse_mapping[self.i.mode])
         p.translate(0,icon.height()+self.lineh/2+self.margin)
         
     def drawWeather(self, p):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather_splash drawWeather")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather_splash drawWeather")
         data = self.i.data
         w=self.w-2*self.margin
         h=self.h-2*self.margin
-        p.setFont( self.font)
+        p.setFont(self.font)
         detailed = 'detailed'
         if not 'detailed' in data and 'detailed_0' in data:
             detailed = 'detailed_0'
         else:
-            syslog.syslog( syslog.LOG_DEBUG,
-                           "INFO   drawWeather no detailed info")
+            syslog.syslog(syslog.LOG_DEBUG,
+                          "INFO   drawWeather no detailed info")
         self.drawItem(p, w/2, u'Status:', u'%s' % data[detailed])
         if 'temp' in data:
             self.drawItem(p, w/2, u'Temperature:',

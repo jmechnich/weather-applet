@@ -16,54 +16,55 @@ class OWMParser:
         self.args['APPID'] = apikey
     
     def getForecastByName(self, name):
-        return self.getWeatherByName( name, 'forecast')
+        return self.getWeatherByName(name, 'forecast')
 
     def getForecastByID(self, locid):
-        return self.getWeatherByID( locid, 'forecast')
+        return self.getWeatherByID(locid, 'forecast')
 
     def getForecastByCoord(self, lon, lat):
-        return self.getWeatherByCoord( lon, lat, 'forecast')
+        return self.getWeatherByCoord(lon, lat, 'forecast')
 
     def getDailyForecastByName(self, name):
-        return self.getWeatherByName( name, 'forecast/daily')
+        return self.getWeatherByName(name, 'forecast/daily')
 
     def getDailyForecastByID(self, locid):
-        return self.getWeatherByID( locid, 'forecast/daily')
+        return self.getWeatherByID(locid, 'forecast/daily')
 
     def getDailyForecastByCoord(self, lon, lat):
-        return self.getWeatherByCoord( lon, lat, 'forecast/daily')
+        return self.getWeatherByCoord(lon, lat, 'forecast/daily')
 
     def getWeatherByName(self, name, keyword='weather'):
         args = { 'q': name}
-        args.update( self.args)
+        args.update(self.args)
         url = '%s/%s?' % (self.baseurl,keyword)
-        return self.getWeather( url, args)
+        return self.getWeather(url, args)
 
     def getWeatherByID(self, locid, keyword='weather'):
-        args = { 'id': locid}
-        args.update( self.args)
+        args = { 'id': locid }
+        args.update(self.args)
         url = '%s/%s?' % (self.baseurl,keyword)
-        w = self.getWeather( url, args)
+        w = self.getWeather(url, args)
         # try 'group' api call if 'weather' was unsuccessful
         if not len(w) and keyword == 'weather':
-            syslog.syslog( syslog.LOG_WARNING,
-                           "WARN   Falling back to 'group' API call")
+            syslog.syslog(syslog.LOG_WARNING,
+                          "WARN   Falling back to 'group' API call")
             url = '%s/%s?' % (self.baseurl,'group')
-            w = self.getWeather( url, args)
+            w = self.getWeather(url, args)
         return w
 
     def getWeatherByCoord(self, lon, lat, keyword='weather'):
         args = { 'lon': lon,
                  'lat': lat,
         }
-        args.update( self.args)
+        args.update(self.args)
         url = '%s/%s?' % (self.baseurl,keyword)
-        return self.getWeather( url, args)
+        return self.getWeather(url, args)
 
     def getWeather(self, url, args):
         data = {}
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  %s" % url+urllib.parse.urlencode(args))
-        f = self.connect( url+urllib.parse.urlencode(args))
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  %s" % url+urllib.parse.urlencode(args))
+        f = self.connect(url+urllib.parse.urlencode(args))
         if not f:
             syslog.syslog(syslog.LOG_DEBUG, "DEBUG  no data from connect()")
             return data
@@ -71,11 +72,11 @@ class OWMParser:
         j = json.load(f)
         if ('cod' in j and int(j['cod']) != 200) or \
            ('cnt' in j and int(j['cnt']) == 0):
-            syslog.syslog( syslog.LOG_ERR, "ERROR  %s" % repr(j))
+            syslog.syslog(syslog.LOG_ERR, "ERROR  %s" % repr(j))
             return data
         
         if 'city' in j:
-            data.update(self.parseLocation( j['city']))
+            data.update(self.parseLocation(j['city']))
         if 'list' in j:
             if url.find('forecast') != -1:
                 data['forecasts'] = []
@@ -84,16 +85,16 @@ class OWMParser:
             elif j['cnt'] == 1:
                 j = j['list'][0]
         if not len(data):
-            data.update( self.parseLocation(j))
-            data.update( self.parseWeather(j))
+            data.update(self.parseLocation(j))
+            data.update(self.parseWeather(j))
         
         return data
             
-    def findClosestID( self, lon, lat):
+    def findClosestID(self, lon, lat):
         args = { 'lon': lon,
                  'lat': lat,
         }
-        args.update( self.args)
+        args.update(self.args)
         url = '%s/%s?' % (self.baseurl,'find')
 
         ret = -1
@@ -127,16 +128,16 @@ class OWMParser:
 
         return ret
 
-    def getNameFromID( self, locid):
+    def getNameFromID(self, locid):
         ret = None
-        data = getWeatherByID( locid)
+        data = getWeatherByID(locid)
         if len(data) and 'name' in data: 
             ret = date['name']
             if 'country' in data:
                 ret += ", " + data['country']
         return ret
 
-    def parseLocation( self, l):
+    def parseLocation(self, l):
         d = {}
         for k, v in l.items():
             if k == 'coord':
@@ -151,7 +152,7 @@ class OWMParser:
             #     print(2*' ' +k, v)
         return d
 
-    def parseWeather( self, w):
+    def parseWeather(self, w):
         d = {}
         for k, v in w.items():
             if k in [ 'wind', 'rain', 'clouds', 'temp']:
@@ -213,16 +214,16 @@ class OWMParser:
         retries = 3
         for i in range(retries):
             try:
-                data = urllib.request.urlopen( url)
+                data = urllib.request.urlopen(url)
                 break
             except Exception as e:
-                syslog.syslog( syslog.LOG_DEBUG,
-                               "DEBUG  owm connect error: %s" % str(e))
-                syslog.syslog( syslog.LOG_WARNING,
-                               "WARN   connection retry %d/%d" % (i+1,retries))
+                syslog.syslog(syslog.LOG_DEBUG,
+                              "DEBUG  owm connect error: %s" % str(e))
+                syslog.syslog(syslog.LOG_WARNING,
+                              "WARN   connection retry %d/%d" % (i+1,retries))
                 time.sleep(1)
         else:
-            syslog.syslog( syslog.LOG_ERR,
-                           "ERROR  failed to retrieve data from '%s'" % url)
+            syslog.syslog(syslog.LOG_ERR,
+                          "ERROR  failed to retrieve data from '%s'" % url)
             #raise OWMError("Error connecting to '%s'" % url)
         return data

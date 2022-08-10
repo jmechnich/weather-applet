@@ -35,8 +35,8 @@ class WeatherIndicator(Indicator):
                                                      Location.Auto))
         self.locid        = int(Application.settingsValue('locid', '-1'))
         self.apikey       = str(Application.settingsValue('apikey', ''))
-        self.cachedir     = os.path.join( os.environ['HOME'], '.cache',
-                                          str(qApp.applicationName()))
+        self.cachedir     = os.path.join(os.environ['HOME'], '.cache',
+                                         str(qApp.applicationName()))
         self.prefs        = None
         self.icon         = None
         self.locvalid     = False if self.locid == -1 else True
@@ -51,15 +51,15 @@ class WeatherIndicator(Indicator):
         sm = QSignalMapper(m)
         for i in range(0,Modes.N):
             name = Modes.reverse_mapping[i]
-            a = g.addAction( name)
+            a = g.addAction(name)
             a.setCheckable(True)
             if self.mode == i:
-                a.setChecked( True)
+                a.setChecked(True)
             m.addAction(a)
-            a.triggered.connect( sm.map)
-            sm.setMapping( a, i)
+            a.triggered.connect(sm.map)
+            sm.setMapping(a, i)
             self.mode_actions[i] = a
-        sm.mapped.connect( self.setMode)
+        sm.mapped.connect(self.setMode)
         m.addSeparator()
         m.addAction(QIcon.fromTheme("view-refresh"), "&Update",
                     self.updateAll)
@@ -69,9 +69,9 @@ class WeatherIndicator(Indicator):
         self.systray.setContextMenu(m)
         
     def initStats(self):
-        self.systray.triggerUpdate.connect( self.func)
-        self.systray.triggerWheel.connect( self.cycleMode)
-        self.systray.activated.connect( self.systrayClicked)
+        self.systray.triggerUpdate.connect(self.func)
+        self.systray.triggerWheel.connect(self.cycleMode)
+        self.systray.activated.connect(self.systrayClicked)
 
     def initWidgets(self):
         self.splash = SplashWeather(self)
@@ -93,43 +93,42 @@ class WeatherIndicator(Indicator):
         Application.setSettingsValue('location', self.location)
 
     def setLocationFromIP(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather setLocationFromIP")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather setLocationFromIP")
         lon=0
         lat=0
         try:
             src = "https://freegeoip.app/json/"
             f = urllib.request.urlopen(src)
             j = json.load(f)
-            lon = j.get( 'longitude')
-            lat = j.get( 'latitude')
+            lon = j.get('longitude')
+            lat = j.get('latitude')
         except Exception as e:
             syslog.syslog(
                 syslog.LOG_ERR,
                 "ERROR  weather setLocationFromIP failed: %s" % str(e))
 
             return False
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  weather setLocationFromIP %f %f" %
-                       (lon,lat))
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  weather setLocationFromIP %f %f" % (lon,lat))
         
         return self.setLocationFromCoord(lon,lat)
     
     def setLocationFromName(self, s):
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  weather setLocationFromName %s" % s)
-        if self.locationName().startswith( s): return False
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  weather setLocationFromName %s" % s)
+        if self.locationName().startswith(s): return False
         data = self.owm.getWeatherByName(s)
         if not len(data): return False
         if not 'id' in data: return False
         self.locid = data['id']
         self.locvalid = True
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  weather setLocationFromName: %d" % self.locid)
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  weather setLocationFromName: %d" % self.locid)
         return True
 
     def setLocationFromCoord(self, lon, lat):
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  weather setLocationFromCoord %f %f" % (lon,lat))
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  weather setLocationFromCoord %f %f" % (lon,lat))
         if lon in self.data and lat in self.data:
             if self.data['lon'] == lon and self.data['lat'] == lat:
                 syslog.syslog(
@@ -144,12 +143,12 @@ class WeatherIndicator(Indicator):
         if self.locid == locid and len(self.data): return False
         self.locid = locid
         self.locvalid = True
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  weather setLocationFromCoord: %d" % self.locid)
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  weather setLocationFromCoord: %d" % self.locid)
         return True
     
     def updateLocation(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateLocation")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather updateLocation")
         self.updateAll()
         if self.location != Location.Auto and \
            self.locid    != -1 and \
@@ -160,12 +159,12 @@ class WeatherIndicator(Indicator):
         self.prefs.show()
         
     def setMode(self, m):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather setMode %d" % m)
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather setMode %d" % m)
         self.mode = m
-        Application.setSettingsValue( 'mode', m)
+        Application.setSettingsValue('mode', m)
         if self.splash:
-            syslog.syslog( syslog.LOG_DEBUG,
-                           "DEBUG  weather setMode updateSplash")
+            syslog.syslog(syslog.LOG_DEBUG,
+                          "DEBUG  weather setMode updateSplash")
             self.updateSplashGeometry()
             self.splash.updateSplash()
             self.splash.show()
@@ -181,8 +180,8 @@ class WeatherIndicator(Indicator):
             if self.splash: self.splash.updateSplash()
         
     def systrayClicked(self,reason):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather systrayClicked '%s'" %\
-                       self.reasonDict[reason])
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather systrayClicked '%s'" %\
+                      self.reasonDict[reason])
         if reason == QSystemTrayIcon.Trigger or \
                 reason == QSystemTrayIcon.DoubleClick:
             if not self.splash: return
@@ -206,14 +205,14 @@ class WeatherIndicator(Indicator):
         self.prefs.group_loc.button(self.location).setChecked(True)
         
     def iconPath(self,icon):
-        trgdir = os.path.join( self.cachedir, 'icons')
-        trg = os.path.join( trgdir, '%s.png' % icon)
+        trgdir = os.path.join(self.cachedir, 'icons')
+        trg = os.path.join(trgdir, '%s.png' % icon)
         if not os.path.exists(trgdir):
-            os.makedirs( trgdir)
-        if not os.path.exists( trg):
+            os.makedirs(trgdir)
+        if not os.path.exists(trg):
             src = "http://openweathermap.org/img/w/%s.png" % icon
             f = urllib.request.urlopen(src)
-            output = open( trg, 'wb')
+            output = open(trg, 'wb')
             output.write(f.read())
             output.close()
         return trg
@@ -223,30 +222,30 @@ class WeatherIndicator(Indicator):
         self.mode_actions[self.mode].setChecked(True)
     
     def updateAll(self):
-        syslog.syslog( syslog.LOG_INFO, "INFO   updateAll at %s" %
-                       datetime.now().isoformat())
+        syslog.syslog(syslog.LOG_INFO, "INFO   updateAll at %s" %
+                      datetime.now().isoformat())
         self.data.clear()
         try:
             self.updateWeather()
             self.updateForecast()
             self.updateDailyForecast()
         except OWMError as e:
-            syslog.syslog( syslog.LOG_ERR, "ERR  weather %s" % e)
+            syslog.syslog(syslog.LOG_ERR, "ERR  weather %s" % e)
         self.updateIcon()
         if self.splash:
             self.splash.updateSplash()
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateAll end")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather updateAll end")
     
     def updateWeather(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateWeather")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather updateWeather")
         if self.locid == -1:
-            syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather locid is empty")
+            syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather locid is empty")
             return
         
-        data = self.owm.getWeatherByID( self.locid)
+        data = self.owm.getWeatherByID(self.locid)
         if not len(data):
-            syslog.syslog( syslog.LOG_WARNING,
-                           "WARN  could not get weather for '%d'" % self.locid)
+            syslog.syslog(syslog.LOG_WARNING,
+                          "WARN  could not get weather for '%d'" % self.locid)
             if not self.locvalid:
                 self.locid = -1
             return
@@ -255,17 +254,16 @@ class WeatherIndicator(Indicator):
         self.locvalid = True
 
     def updateForecast(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateForecast")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather updateForecast")
         if self.locid == -1:
-            syslog.syslog( syslog.LOG_DEBUG,
-                           "DEBUG  weather locid is empty")
+            syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather locid is empty")
             return
 
-        data = self.owm.getForecastByID( self.locid)
+        data = self.owm.getForecastByID(self.locid)
         
         if not len(data):
-            syslog.syslog( syslog.LOG_WARNING,
-                           "WARN  could not get forecast for '%d'" % self.locid)
+            syslog.syslog(syslog.LOG_WARNING,
+                          "WARN  could not get forecast for '%d'" % self.locid)
             if not self.locvalid:
                 self.locid = -1
             return
@@ -284,17 +282,17 @@ class WeatherIndicator(Indicator):
                 c2 += 1
  
     def updateDailyForecast(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateDailyForecast")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather updateDailyForecast")
         if self.locid == -1:
-            syslog.syslog( syslog.LOG_DEBUG,
-                           "DEBUG  weather locid is empty")
+            syslog.syslog(syslog.LOG_DEBUG,
+                          "DEBUG  weather locid is empty")
             return
 
-        data = self.owm.getDailyForecastByID( self.locid)
+        data = self.owm.getDailyForecastByID(self.locid)
 
         if not len(data):
-            syslog.syslog( syslog.LOG_WARNING,
-                           "WARN  could not get daily forecast for '%d'" % self.locid)
+            syslog.syslog(syslog.LOG_WARNING,
+                          "WARN  could not get daily forecast for '%d'" % self.locid)
             if not self.locvalid:
                 self.locid = -1
             return
@@ -309,19 +307,19 @@ class WeatherIndicator(Indicator):
                 count += 1
         
     def updateIcon(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  weather updateIcon")
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  weather updateIcon")
 
         pix = QPixmap(22, 22)
-        pix.fill( self.systray.bgColor)
+        pix.fill(self.systray.bgColor)
         p = QPainter(pix)
         f = QFont("Dejavu Sans", 6)
-        p.setFont( f)
+        p.setFont(f)
         p.setPen(self.systray.fgColor)
         if not len(self.data):
-            syslog.syslog( syslog.LOG_ERR, "ERR     updateIcon no data")
-            p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
+            syslog.syslog(syslog.LOG_ERR, "ERR     updateIcon no data")
+            p.drawText(0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
-            self.systray.setIcon( QIcon(pix))
+            self.systray.setIcon(QIcon(pix))
             if self.splash: self.splash.updateSplash()
             return
         iconname = 'icon'
@@ -330,23 +328,23 @@ class WeatherIndicator(Indicator):
         elif 'icon_0' in self.data:
             iconname = 'icon_0'
         else:
-            syslog.syslog( syslog.LOG_WARNING, "WARN  updateIcon no icon")
-            p.drawText( 0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
+            syslog.syslog(syslog.LOG_WARNING, "WARN  updateIcon no icon")
+            p.drawText(0, 0, pix.width(), pix.height(), Qt.AlignCenter, "ERR")
             p.end()
-            self.systray.setIcon( QIcon(pix))
+            self.systray.setIcon(QIcon(pix))
             if self.splash: self.splash.updateSplash()
             return
-        bg = QPixmap( self.iconPath(self.data[iconname]))
+        bg = QPixmap(self.iconPath(self.data[iconname]))
         sx = float(pix.width())/bg.width()
         sy = float(pix.height())/bg.height()
         p.save()
-        p.translate( pix.width()/2, pix.height()/2)
-        p.scale( sx, sy)
-        p.translate( -pix.width()/2/sx, -(pix.height()/2+5)/sy)
-        p.drawPixmap( 0, 0, bg)
+        p.translate(pix.width()/2, pix.height()/2)
+        p.scale(sx, sy)
+        p.translate(-pix.width()/2/sx, -(pix.height()/2+5)/sy)
+        p.drawPixmap(0, 0, bg)
         p.restore()
-        p.drawText( pix.rect(), Qt.AlignBottom|Qt.AlignHCenter,
-                    u"%d\xb0C" % round(self.data['temp']))
+        p.drawText(pix.rect(), Qt.AlignBottom|Qt.AlignHCenter,
+                   "%d\xb0C" % round(self.data['temp']))
         p.end()
         self.icon = QIcon(pix)
         self.systray.setIcon(self.icon)

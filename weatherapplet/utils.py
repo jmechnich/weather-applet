@@ -5,8 +5,8 @@ def enum(*sequential, **named):
     enums['N'] = len(sequential)
     return type('Enum', (), enums)
 
-Modes    = enum( 'Now', 'Today', 'Tomorrow', 'Week')
-Location = enum( 'Auto', 'Name', 'Coord', "ID", "Preset")
+Modes    = enum('Now', 'Today', 'Tomorrow', 'Week')
+Location = enum('Auto', 'Name', 'Coord', "ID", "Preset")
 
 class OWMError(Exception):
     def __init__(self,msg):
