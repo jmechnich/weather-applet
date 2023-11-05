@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -u
 
-import argparse, syslog, daemon, sys
+import syslog
 
 from appletlib.app         import Application
 from weatherapplet.weather import WeatherIndicator
@@ -10,12 +10,12 @@ def main(argdict):
     app.init(argdict)
     i = [ WeatherIndicator() ]
     syslog.syslog( syslog.LOG_INFO, "INFO   startup complete");
-    sys.exit(app.exec_())
+    return app.exec()
 
 if __name__ == "__main__":
     args = Application.parseCommandLine('Weather applet')
     argdict = { 'verbosity': args.verbosity, 'daemon': args.daemon }
     if args.daemon:
-        print("Running as daemon stopped working with PyQt5,"
+        print("Running as daemon stopped working with PyQt,"
               " continuing anyway...")
     main(argdict)

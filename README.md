@@ -6,7 +6,7 @@
 weather-applet
 ==============
 
-Weather system tray applet for X11, written in Python 3 and PyQt 5. An
+Weather system tray applet for X11, written in Python 3 and PyQt 6. An
 API key from https://openweathermap.org/ is required.
 
 Functionality
@@ -25,7 +25,7 @@ Requirements
 
 - appletlib (https://github.com/jmechnich/appletlib)
 - Python 3
-- PyQt 5
+- PyQt 6
 
 Screenshots
 ===========
